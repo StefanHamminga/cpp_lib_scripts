@@ -31,7 +31,7 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/test")
     endforeach ()
 
     add_custom_target(check
-        COMMAND ${CMAKE_CTEST_COMMAND} --verbose
+        COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
         DEPENDS ${TEST_LIST}
     )
 endif()
