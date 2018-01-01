@@ -1,0 +1,4 @@
+[submodule "rtl2dot"]
+	path = rtl2dot
+	url = https://github.com/cbdevnet/rtl2dot.git
+	branch = master
