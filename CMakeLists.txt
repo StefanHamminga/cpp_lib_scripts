@@ -26,6 +26,15 @@ include(auto_project_name)
 
 message(STATUS "Project name: ${PROJECT_NAME}")
 
+# Build options.
+# Hint: If you use `#ifndef NDEBUG` for debug code this will automatically toggle those code blocks.
+if (NOT CMAKE_BUILD_TYPE)
+    # set (CMAKE_BUILD_TYPE Release)
+    set (CMAKE_BUILD_TYPE Debug)
+endif ()
+
+message (STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 add_custom_target(build-time-make-directory1
     PRE_BUILD ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/doc"
@@ -54,6 +63,19 @@ install(FILES
     DESTINATION
     include/${PROJECT_NAME}
 )
+
+# Comment this out to disable running clang-tidy on test executables in debug mode.
+# For a full list of tidy checks, with default enabled ones marked (*), run this very ugly bash mashup:
+# { clang-tidy -list-checks -checks=*; clang-tidy -list-checks; } | egrep -v '^([a-zA-Z]|$)' | sort | uniq -c | sed -r 's,\s+1\s+,\t\t,' | sed -r 's,\s+[2-9]\s+,\t*\t,'
+find_program(
+    CLANG_TIDY_EXE
+    NAMES "clang-tidy"
+    DOC "Path to clang-tidy executable"
+)
+if(CLANG_TIDY_EXE)
+    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+    set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-extra-arg=-fcolor-diagnostics;-extra-arg=-std=c++17;-checks=*")
+endif()
 
 include(auto_tests)
 

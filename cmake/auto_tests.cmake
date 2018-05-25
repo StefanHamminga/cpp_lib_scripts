@@ -13,7 +13,7 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/test")
         OUTPUT_VARIABLE TEST_SOURCES
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    message(STATUS "Tests: \n${TEST_SOURCES}")
+    # message(STATUS "Tests: \n${TEST_SOURCES}")
 
     set (TEST_LIST)
     foreach (TEST_SOURCE IN LISTS TEST_SOURCES)
@@ -22,8 +22,24 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/test")
             message(STATUS "Adding test ${TEST_NAME}")
             add_executable(test_${TEST_NAME} "${CMAKE_SOURCE_DIR}/test/${TEST_SOURCE}")
 
+            set_target_properties(
+                test_${TEST_NAME} PROPERTIES
+                CXX_STANDARD 17
+                CXX_STANDARD_REQUIRED ON
+            )
+
             # Set any test compilation options here
-            target_compile_options(test_${TEST_NAME} PRIVATE "-std=gnu++17;-Wfatal-errors")
+            if ("_${CMAKE_BUILD_TYPE}" STREQUAL "_Release")
+                target_compile_options(test_${TEST_NAME} PRIVATE "-std=gnu++17;-O3;-Wfatal-errors")
+            else ()
+                target_compile_options(test_${TEST_NAME} PRIVATE "-std=gnu++17;-O3;-ggdb;-Wall;-Wextra;-Wfatal-errors")
+                if (CLANG_TIDY_EXE)
+                    set_target_properties(
+                        test_${TEST_NAME} PROPERTIES
+                        CXX_CLANG_TIDY "${DO_CLANG_TIDY}"
+                    )
+                endif()
+            endif ()
 
             add_test(${TEST_NAME} "test_${TEST_NAME}")
             list (APPEND TEST_LIST test_${TEST_NAME})
