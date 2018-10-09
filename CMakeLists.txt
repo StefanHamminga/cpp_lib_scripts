@@ -55,7 +55,8 @@ execute_process (
     OUTPUT_VARIABLE LIB_HEADERS
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-message(STATUS "Library headers: \n${LIB_HEADERS}")
+string (REGEX REPLACE "((^|;)([^;]+)(;))" "\n\t\\3" LIB_HEADERS_PRETTY "${LIB_HEADERS}")
+message(STATUS "Library headers: ${LIB_HEADERS_PRETTY}")
 
 # Install headers found above
 install(FILES
