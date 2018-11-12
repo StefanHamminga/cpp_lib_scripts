@@ -16,10 +16,12 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/test")
     # message(STATUS "Tests: \n${TEST_SOURCES}")
 
     set (TEST_LIST)
+    set (TEST_NAMES)
     foreach (TEST_SOURCE IN LISTS TEST_SOURCES)
         if (NOT "_" STREQUAL "_${TEST_SOURCE}" AND EXISTS "${CMAKE_SOURCE_DIR}/test/${TEST_SOURCE}")
             string(REGEX REPLACE "\\.[^.]+$" "" TEST_NAME "${TEST_SOURCE}")
-            message(STATUS "Adding test ${TEST_NAME}")
+            list (APPEND TEST_NAMES ${TEST_NAME})
+            # message(STATUS "Adding test ${ColourBold}${TEST_NAME}${ColourReset}")
             add_executable(test_${TEST_NAME} "${CMAKE_SOURCE_DIR}/test/${TEST_SOURCE}")
 
             set_target_properties(
@@ -45,6 +47,9 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/test")
             list (APPEND TEST_LIST test_${TEST_NAME})
         endif()
     endforeach ()
+
+    string (REGEX REPLACE "((^|;)[ \t]*([^;]+)($|;))" "\n\t\\3" TEST_NAMES "${TEST_NAMES}")
+    message(STATUS "Available tests:${ColourBold}${TEST_NAMES}${ColourReset}")
 
     add_custom_target(check
         COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure

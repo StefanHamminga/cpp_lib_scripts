@@ -18,13 +18,16 @@ set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/scripts/cmake)
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
+include(colours)
+
 # Project name - exported to source as PROJECT_NAME
 # If you leave this commented out the base directory name is used as project
 # name, with either the most recent git tag or '0.0.0' as version.
 # project (my_library VERSION 1.0.0)
 include(auto_project_name)
 
-message(STATUS "Project name: ${PROJECT_NAME}")
+message(STATUS "Project name: ${ColourBold}${PROJECT_NAME}${ColourReset}")
+message(STATUS "Project version: ${ColourBold}${PROJECT_VERSION}${ColourReset}")
 
 # Build options.
 # Hint: If you use `#ifndef NDEBUG` for debug code this will automatically toggle those code blocks.
@@ -33,7 +36,7 @@ if (NOT CMAKE_BUILD_TYPE)
     set (CMAKE_BUILD_TYPE Debug)
 endif ()
 
-message (STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message (STATUS "Build type: ${ColourBold}${CMAKE_BUILD_TYPE}${ColourReset}")
 
 add_custom_target(build-time-make-directory1
     PRE_BUILD ALL
@@ -55,8 +58,8 @@ execute_process (
     OUTPUT_VARIABLE LIB_HEADERS
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-string (REGEX REPLACE "((^|;)([^;]+)(;))" "\n\t\\3" LIB_HEADERS_PRETTY "${LIB_HEADERS}")
-message(STATUS "Library headers: ${LIB_HEADERS_PRETTY}")
+string (REGEX REPLACE "((^|;)([^;]+)(;|$))" "\n\t\\3" LIB_HEADERS_PRETTY "${LIB_HEADERS}")
+message(STATUS "Library headers: ${ColourBold}${LIB_HEADERS_PRETTY}${ColourReset}")
 
 # Install headers found above
 install(FILES
@@ -68,20 +71,22 @@ install(FILES
 # Comment this out to disable running clang-tidy on test executables in debug mode.
 # For a full list of tidy checks, with default enabled ones marked (*), run this very ugly bash mashup:
 # { clang-tidy -list-checks -checks=*; clang-tidy -list-checks; } | egrep -v '^([a-zA-Z]|$)' | sort | uniq -c | sed -r 's,\s+1\s+,\t\t,' | sed -r 's,\s+[2-9]\s+,\t*\t,'
-find_program(
-    CLANG_TIDY_EXE
-    NAMES "clang-tidy"
-    DOC "Path to clang-tidy executable"
-)
+# Currently clang-tidy seems to complain about a missing compilation database, breaking debug builds
+# find_program(
+#     CLANG_TIDY_EXE
+#     NAMES "clang-tidy"
+#     DOC "Path to clang-tidy executable"
+# )
 if(CLANG_TIDY_EXE)
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-    set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-extra-arg=-fcolor-diagnostics;-extra-arg=-std=c++17;-checks=*")
+    set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-extra-arg=-fcolor-diagnostics;-extra-arg=-std=c++17")
 endif()
 
 include(auto_tests)
 
 include(generate_documentation)
 
+include (included_list)
 
 #TODO: Sort out how much of this we really want to install:
 # include(CMakePackageConfigHelpers)
